@@ -1,0 +1,25 @@
+{
+	"name": "trg_daily_gold_run",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "p_transform_customers_raw_to_transformed",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 16,
+				"startTime": "2026-09-27T10:15:00",
+				"endTime": "2026-09-28T11:10:00",
+				"timeZone": "India Standard Time"
+			}
+		}
+	}
+}

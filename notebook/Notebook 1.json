@@ -1,0 +1,136 @@
+{
+	"name": "Notebook 1",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "sparkpool01",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"runAsWorkspaceSystemIdentity": false,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "53799784-f8c0-4eb3-8a5e-5de86c7162b5"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1",
+				"state": {
+					"f7f00cdd-f79a-4fa0-a18e-fed7d39ff131": {
+						"type": "Synapse.DataFrame",
+						"sync_state": {
+							"table": {
+								"rows": [
+									{
+										"0": "India",
+										"1": "3"
+									},
+									{
+										"0": "USA",
+										"1": "1"
+									},
+									{
+										"0": "UK",
+										"1": "1"
+									}
+								],
+								"schema": [
+									{
+										"key": "0",
+										"name": "Country",
+										"type": "string"
+									},
+									{
+										"key": "1",
+										"name": "TotalCustomers",
+										"type": "bigint"
+									}
+								],
+								"truncated": false
+							},
+							"isSummary": false,
+							"language": "scala",
+							"wranglerEntryContext": {
+								"candidateVariableNames": [
+									"gold_df"
+								],
+								"dataframeType": "pyspark"
+							}
+						},
+						"persist_state": {
+							"view": {
+								"type": "details",
+								"chartOptions": {
+									"chartType": "bar",
+									"aggregationType": "sum",
+									"categoryFieldKeys": [
+										"0"
+									],
+									"seriesFieldKeys": [
+										"1"
+									],
+									"isStacked": false
+								}
+							}
+						}
+					}
+				}
+			},
+			"enableDebugMode": false,
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/101d72a5-8f97-4413-9fac-97b610379d60/resourceGroups/rg-synapse-dev-02/providers/Microsoft.Synapse/workspaces/rg-synapse-raju/bigDataPools/sparkpool01",
+				"name": "sparkpool01",
+				"type": "Spark",
+				"endpoint": "https://rg-synapse-raju.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkpool01",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net",
+					"authHeader": null
+				},
+				"sparkVersion": "3.5",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"# 1. Silver Layer (Parquet) నుండి డేటాని చదవడం\n",
+					"silver_df = spark.read.parquet(\"abfss://main@rgsynapsedev01.dfs.core.windows.net/transformed-silver/Customer.parquet\")\n",
+					"\n",
+					"# 2. Gold Layer Transformation: Country-wise Total Customers ని లెక్కించడం\n",
+					"from pyspark.sql.functions import count\n",
+					"\n",
+					"gold_df = silver_df.groupBy(\"Country\").agg(count(\"CustomerID\").alias(\"TotalCustomers\"))\n",
+					"\n",
+					"# 3. Gold Layer (curated) ఫోల్డర్‌లో Parquet ఫార్మాట్‌లో దాచడం\n",
+					"gold_df.write.mode(\"overwrite\").parquet(\"abfss://main@rgsynapsedev01.dfs.core.windows.net/curated/country_customer_summary.parquet\")\n",
+					"\n",
+					"# 4. ఫలితాన్ని డిస్‌ప్లే చేయడం\n",
+					"display(gold_df)"
+				],
+				"execution_count": 1
+			}
+		]
+	}
+}

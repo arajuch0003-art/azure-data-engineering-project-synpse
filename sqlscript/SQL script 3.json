@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 3",
+	"properties": {
+		"content": {
+			"query": "-- 1. Logical Database Creation\nCREATE DATABASE GoldAnalyticsDB;\nGO\n\nUSE GoldAnalyticsDB;\nGO\n\n-- 2. External Table / View Creation over Gold Parquet File\nCREATE VIEW vw_CountryCustomerSummary AS\nSELECT *\nFROM OPENROWSET(\n    BULK 'https://rgsynapsedev01.dfs.core.windows.net/main/curated/country_customer_summary.parquet',\n    FORMAT = 'PARQUET'\n) AS [result];\nGO\n\n-- 3. Query the View\nSELECT * FROM vw_CountryCustomerSummary;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "GoldAnalyticsDB",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
